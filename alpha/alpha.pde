@@ -33,7 +33,7 @@ int PORT=10001;
 
 PShader mat;
 
-float rozsah = 2600;
+float rozsah = 1000;
 
 float SMOOTHING = 20.0;
 
@@ -146,6 +146,17 @@ void draw(){
 //returns array of Points or null, if no data were received
 
 
+/* TODO
+
+   Implement all datatypes
+
+   getFrameId();
+   getPoints();
+   getCentroids();
+   getSubCentroids();
+
+ */
+
 ArrayList getData2(){
   ArrayList pointArray = new ArrayList();
 
@@ -156,19 +167,12 @@ ArrayList getData2(){
 
 
 
-      /*text("Frame ID: " + nf.getFrameId(), 50, 50);
-        text("Points: " + nf.getPoints().size(), 50, 80);
-        text("Centroids: " + nf.getCentroids().size(), 50, 110);
-        text("Subcentroids: " + nf.getSubCentroids().size(), 50, 140);
-       */
 
       List<SubCentroid> tmp = nf.getSubCentroids();
 
       for(Object p : tmp){
 
         ArrayList arr = (ArrayList)tmp;
-
-        println(arr.size());
 
         for(Object sc: arr){
           SubCentroid sub = (SubCentroid)sc;
@@ -179,7 +183,7 @@ ArrayList getData2(){
                   map(pp.getX(),-rozsah,rozsah,-100,100),
                   map(pp.getY(),-rozsah,rozsah,100,-100),
                   map(pp.getZ(),-rozsah,rozsah,-100,100)
-                  )));        
+                  ))); 
         }
 
       }
