@@ -118,7 +118,6 @@ void draw(){
   {
     println("Chyba pri prijmu dat: "+e);
     //meh
-    ;
   }
 
   try{
@@ -163,19 +162,25 @@ ArrayList getData2(){
         text("Subcentroids: " + nf.getSubCentroids().size(), 50, 140);
        */
 
-      List <SubCentroid> tmp = nf.getSubCentroids();
+      List<SubCentroid> tmp = nf.getSubCentroids();
 
       for(Object p : tmp){
 
-        SubCentroid sub = (SubCentroid)tmp;
+        ArrayList arr = (ArrayList)tmp;
 
-        Point pp = sub.getPoint();
+        println(arr.size());
 
-        pointArray.add(new Bod(new PVector(
-                map(pp.getX(),-rozsah,rozsah,-100,100),
-                map(pp.getY(),-rozsah,rozsah,100,-100),
-                map(pp.getZ(),-rozsah,rozsah,-100,100)
-                )));        
+        for(Object sc: arr){
+          SubCentroid sub = (SubCentroid)sc;
+
+          Point pp = sub.getPoint();
+
+          pointArray.add(new Bod(new PVector(
+                  map(pp.getX(),-rozsah,rozsah,-100,100),
+                  map(pp.getY(),-rozsah,rozsah,100,-100),
+                  map(pp.getZ(),-rozsah,rozsah,-100,100)
+                  )));        
+        }
 
       }
     }
