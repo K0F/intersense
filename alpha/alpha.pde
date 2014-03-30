@@ -1,24 +1,34 @@
 /* 
-  Intersense 2013 @ IIM 
+   Intersense 2013 @ IIM 
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
 import peasy.*;
 import ComputationalGeometry.*;
 import processing.net.*;
+
+/////////////////////////
+import java.util.*;
+
+import com.sense3d.intersense.network.dataframe.DataframeFromNetwork;
+
+DataframeReceived receiver;
+String ADDRESS="127.0.0.1";
+int PORT=10001;
+
 
 
 PShader mat;
@@ -41,9 +51,11 @@ ArrayList body;
 
 void setup(){
 
-  size(1280,720,P3D);
+  size(1280,720,OPENGL);
 
-  client = new Client(this, "192.168.23.45", 12345);
+  receiver = new DataframeFromNetwork(ADDRESS, PORT);
+  receiver.init();
+
 
   body = new ArrayList();
 
@@ -57,16 +69,12 @@ void setup(){
   center = new PVector(0,0,0);
 
   for(int i = 0 ; i < num;i++){
-
     body.add(new Bod(new PVector(random(-100,100),random(-100,100),random(-100,100))));
-  
   }
 
   for(int i = 0 ; i < body.size();i++){
-  
     Bod tmp = (Bod)body.get(i);
     surface.addPt(tmp.pos); 
-  
   }
 
   cam = new PeasyCam(this,400);
@@ -79,14 +87,17 @@ void draw(){
 
   background(0);
   fill(255,60);
+  //experimentalni GLSL
+  shader(mat);
+
 
   try{
     ArrayList tmp2 = new ArrayList() ;
-  
-    tmp2 = getData(client);
 
+    tmp2 = getData2();
+
+    // dostavam data?
     if(tmp2!=null)
-
       for(int i = 0; i < tmp2.size();i++){
         Bod a = (Bod)tmp2.get(i);
         Bod b = (Bod)body.get(i);
@@ -96,6 +107,8 @@ void draw(){
         b.pos.z += (a.pos.z-b.pos.z)/SMOOTHING;
       }
 
+
+
     for(int i = 0 ; i < body.size();i++){
       Bod tmp = (Bod)body.get(i);
       tmp.draw();
@@ -103,6 +116,8 @@ void draw(){
 
   }catch(Exception e)
   {
+    println("Chyba pri prijmu dat: "+e);
+    //meh
     ;
   }
 
@@ -126,15 +141,59 @@ void draw(){
     ;
   }
 
-  }
+}
 
 // get data from client and parse them
 //returns array of Points or null, if no data were received
 
+
+ArrayList getData2(){
+  ArrayList pointArray = new ArrayList();
+
+  NetworkFrame nf = null;
+  if (receiver.isInitialized()) {
+    nf = receiver.receive();
+    if (nf != null) {
+
+
+
+      /*text("Frame ID: " + nf.getFrameId(), 50, 50);
+        text("Points: " + nf.getPoints().size(), 50, 80);
+        text("Centroids: " + nf.getCentroids().size(), 50, 110);
+        text("Subcentroids: " + nf.getSubCentroids().size(), 50, 140);
+       */
+
+      List <SubCentroid> tmp = nf.getSubCentroids();
+
+      for(Object p : tmp){
+
+        SubCentroid sub = (SubCentroid)tmp;
+
+        Point pp = sub.getPoint();
+
+        pointArray.add(new Bod(new PVector(
+                map(pp.getX(),-rozsah,rozsah,-100,100),
+                map(pp.getY(),-rozsah,rozsah,100,-100),
+                map(pp.getZ(),-rozsah,rozsah,-100,100)
+                )));        
+
+      }
+    }
+  }else{
+    return null;
+  }
+
+  return pointArray;
+
+}
+
 ArrayList getData(Client c) {
   ArrayList pointArray;
   if (c.available() > 0) {
+
     String input = c.readString();
+    println(input);
+
     input = input.substring(0, input.indexOf("#")); // Only up to the newline
     String[] points = split(input, '\n'); // Split values into an array
     pointArray = new ArrayList();
@@ -148,7 +207,7 @@ ArrayList getData(Client c) {
                 map(data[1],-rozsah,rozsah,100,-100),
                 map(data[2],-rozsah,rozsah,-100,100)
                 )));
-      
+
 
       }
     }
@@ -187,3 +246,23 @@ class Bod{
 
   }
 }
+int sketchWidth() {
+  return 1280;
+}
+
+
+int sketchHeight() {
+  return 720;
+}
+
+
+String sketchRenderer() {
+  return OPENGL;
+}
+
+
+void exit() {
+  receiver.destroy(); //dont forget!!!
+  super.exit(); //To change body of generated methods, choose Tools | Templates.
+}
+
