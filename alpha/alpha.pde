@@ -13,7 +13,6 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
  */
 
 import peasy.*;
@@ -29,13 +28,11 @@ DataframeReceived receiver;
 String ADDRESS="127.0.0.1";
 int PORT=10001;
 
-
-
 PShader mat;
 
 float rozsah = 1000;
 
-float SMOOTHING = 20.0;
+float SMOOTHING = 200.0;
 
 IsoWrap surface;
 int num = 20;
@@ -107,13 +104,10 @@ void draw(){
         b.pos.z += (a.pos.z-b.pos.z)/SMOOTHING;
       }
 
-
-
     for(int i = 0 ; i < body.size();i++){
       Bod tmp = (Bod)body.get(i);
       tmp.draw();
     }
-
   }catch(Exception e)
   {
     println("Chyba pri prijmu dat: "+e);
@@ -141,10 +135,8 @@ void draw(){
   }
 
 }
-
 // get data from client and parse them
 //returns array of Points or null, if no data were received
-
 
 /* TODO
 
@@ -165,35 +157,24 @@ ArrayList getData2(){
     nf = receiver.receive();
     if (nf != null) {
 
-
-
-
       List<SubCentroid> tmp = nf.getSubCentroids();
-
       for(Object p : tmp){
-
         ArrayList arr = (ArrayList)tmp;
-
         for(Object sc: arr){
           SubCentroid sub = (SubCentroid)sc;
-
           Point pp = sub.getPoint();
-
           pointArray.add(new Bod(new PVector(
                   map(pp.getX(),-rozsah,rozsah,-100,100),
                   map(pp.getY(),-rozsah,rozsah,100,-100),
                   map(pp.getZ(),-rozsah,rozsah,-100,100)
                   ))); 
         }
-
       }
     }
   }else{
     return null;
   }
-
   return pointArray;
-
 }
 
 ArrayList getData(Client c) {
@@ -216,8 +197,6 @@ ArrayList getData(Client c) {
                 map(data[1],-rozsah,rozsah,100,-100),
                 map(data[2],-rozsah,rozsah,-100,100)
                 )));
-
-
       }
     }
   }
@@ -227,12 +206,10 @@ ArrayList getData(Client c) {
   return pointArray;
 }
 
-
 class Bod{
-
   PVector pos;
   color c;
-
+  
   Bod(PVector _pos){
     pos = _pos;
     c = color(255);
@@ -252,26 +229,22 @@ class Bod{
 
     fill(c);
     noStroke();
-
   }
 }
+
 int sketchWidth() {
   return 1280;
 }
-
 
 int sketchHeight() {
   return 720;
 }
 
-
 String sketchRenderer() {
   return OPENGL;
 }
-
 
 void exit() {
   receiver.destroy(); //dont forget!!!
   super.exit(); //To change body of generated methods, choose Tools | Templates.
 }
-

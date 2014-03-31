@@ -1,0 +1,6 @@
+#!/bin/bash
+# usage: application <FPS> <filename>
+# <FPS> - number of frames per second
+# <filename> - name of the file with  dataframe
+
+java -cp ./dist/*:./dist/lib/* -Xms256m -Xmx1024m com.sense3d.intersense.network.TestDataLoadAndNetworkSend 30 data.bin
