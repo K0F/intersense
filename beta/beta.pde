@@ -27,16 +27,19 @@ DataframeReceived receiver;
 String ADDRESS="127.0.0.1";
 int PORT=10001;
 
-PVector center = new PVector(0,0,0);
+//////////////////////////////
 
+PVector center = new PVector(100,100,100);
 boolean DEBUG = true;
 
 //////////////////////////////
+
 int num = 300;
 
 PVector [] pnts;
 float speed = 1000.0;
 float spread = 30.0;
+
 //////////////////////////////
 
 
@@ -44,7 +47,7 @@ PShader mat;
 
 float rozsah = 1000;
 
-float SMOOTHING = 200.0;
+float SMOOTHING = 20.0;
 
 Client client;
 String input;
@@ -224,9 +227,9 @@ void projection(){
   for(int i = 0 ; i < pnts.length;i++){
 
     PVector origin = new PVector(
-        (noise((frameCount+i*spread)/speed,0,0)-0.5)*width,
-        (noise(0,(frameCount+i*spread)/speed,0)-0.5)*width,
-        (noise(0,0,(frameCount+i*spread)/speed)-0.5)*width
+        (noise((frameCount+i*spread)/speed,0,0)-0.5)*height,
+        (noise(0,(frameCount+i*spread)/speed,0)-0.5)*height,
+        (noise(0,0,(frameCount+i*spread)/speed)-0.5)*height
         );    
 
     pnts[i] = new PVector(
