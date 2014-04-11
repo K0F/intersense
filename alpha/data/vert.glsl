@@ -1,18 +1,22 @@
-uniform mat4 transform;
-uniform mat3 normalMatrix;
-uniform vec3 lightNormal;
+#define PROCESSING_POINT_SHADER
 
+uniform mat4 projection;
+uniform mat4 transform;
+ 
 attribute vec4 vertex;
 attribute vec4 color;
-attribute vec3 normal;
+attribute vec2 offset;
 
 varying vec4 vertColor;
-varying vec3 vertNormal;
-varying vec3 vertLightDir;
+varying vec2 center;
+varying vec2 pos;
 
 void main() {
-  gl_Position = transform * vertex;  
+  vec4 clip = transform * vertex;
+  gl_Position = clip + projection * vec4(offset, 0, 0);
+  
   vertColor = color;
-  vertNormal = normalize(normalMatrix * normal);
-  vertLightDir = -lightNormal;
+  center = clip.xy;
+  pos = offset;
 }
+

@@ -48,7 +48,7 @@ ArrayList body;
 
 void setup(){
 
-  size(1280,720,OPENGL);
+  size(1280,720,P3D);
 
   receiver = new DataframeFromNetwork(ADDRESS, PORT);
   receiver.init();
@@ -58,8 +58,10 @@ void setup(){
 
 
   mat = loadShader("frag.glsl", "vert.glsl");
+  mat.set("sharpness", 0.9);
+  mat.set("weight", 10);
 
-  smooth();
+  //  smooth();
 
   surface = new IsoWrap(this);
 
@@ -78,15 +80,19 @@ void setup(){
   cam.setMinimumDistance(0.01);
   cam.setMaximumDistance(5000);
 
+  ortho();
 }
 
 void draw(){
-
-  background(0);
-  fill(255,60);
   //experimentalni GLSL
-  shader(mat);
 
+  //noStroke();
+  background(0);
+
+  cam.beginHUD();
+  directionalLight(100, 100, 204, -200, 100, -100);
+  directionalLight(204, 100, 100, 200, 100, -100);
+  cam.endHUD();
 
   try{
     ArrayList tmp2 = new ArrayList() ;
@@ -123,11 +129,12 @@ void draw(){
     }
 
 
-    lights();
 
-    fill(0,190);
-    stroke(255,50);
+    // fill(255,20);
+    // noStroke();
+    //   stroke(255,50);
 
+    shader(mat);
     surface.plot();
 
   }catch(Exception e){
@@ -209,7 +216,7 @@ ArrayList getData(Client c) {
 class Bod{
   PVector pos;
   color c;
-  
+
   Bod(PVector _pos){
     pos = _pos;
     c = color(255);
@@ -223,12 +230,12 @@ class Bod{
     for(int i = 0 ; i < body.size();i++ ){
       Bod tmp = (Bod)body.get(i);
       float d = dist(tmp.pos.x,tmp.pos.y,tmp.pos.z,pos.x,pos.y,pos.z);
-      stroke(255,map(d,0,200,25,0));
+      // stroke(255,map(d,0,200,25,0));
       line(tmp.pos.x,tmp.pos.y,tmp.pos.z,pos.x,pos.y,pos.z);
     }
 
-    fill(c);
-    noStroke();
+    //  fill(c);
+    //   noStroke();
   }
 }
 
@@ -241,7 +248,7 @@ int sketchHeight() {
 }
 
 String sketchRenderer() {
-  return OPENGL;
+  return P3D;
 }
 
 void exit() {
