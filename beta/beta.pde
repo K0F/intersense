@@ -15,8 +15,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import peasy.*;
-import ComputationalGeometry.*;
 import processing.net.*;
 
 /////////////////////////
@@ -25,9 +23,13 @@ import java.util.*;
 import com.sense3d.intersense.network.dataframe.DataframeFromNetwork;
 
 DataframeReceived receiver;
+
 String ADDRESS="127.0.0.1";
 int PORT=10001;
 
+PVector center = new PVector(0,0,0);
+
+boolean DEBUG = true;
 
 //////////////////////////////
 int num = 300;
@@ -44,20 +46,16 @@ float rozsah = 1000;
 
 float SMOOTHING = 200.0;
 
-IsoWrap surface;
-
 Client client;
 String input;
 
 PGraphics pass1, pass2;
 
-PVector center;
-PeasyCam cam;
 ArrayList body;
 
 void setup(){
 
-  size(1280,720,P3D);
+  size(1280,720,OPENGL);
 
   receiver = new DataframeFromNetwork(ADDRESS, PORT);
   receiver.init();
@@ -67,49 +65,23 @@ void setup(){
 
   pnts = new PVector[num];
 
-
-  mat = loadShader("frag.glsl", "vert.glsl");
-  mat.set("sharpness", 0.9);
-  mat.set("weight", 10);
-
   smooth();
 
-  surface = new IsoWrap(this);
 
-  center = new PVector(0,0,0);
 
   for(int i = 0 ; i < num;i++){
     body.add(new Bod(new PVector(random(-100,100),random(-100,100),random(-100,100))));
   }
 
-  for(int i = 0 ; i < body.size();i++){
-    Bod tmp = (Bod)body.get(i);
-    surface.addPt(tmp.pos); 
-  }
-
-  //cam = new PeasyCam(this,1000);
-  //cam.setMinimumDistance(0.01);
-  //cam.setMaximumDistance(5000);
-
   ortho();
 }
 
 void draw(){
-  //experimentalni GLSL
 
-  //noStroke();
   background(0);
-
-
-
-//  cam.rotateX(rx);
-//  cam.rotateY(ry);
 
   projection();
 
-  //cam.beginHUD();
-  noFill();
-  
   stroke(255,55);
   fill(255,55);
 
@@ -125,9 +97,6 @@ void draw(){
 
   }
 
-  //cam.endHUD();
-
-
   try{
     ArrayList tmp2 = new ArrayList() ;
 
@@ -139,6 +108,8 @@ void draw(){
         Bod a = (Bod)tmp2.get(i);
         Bod b = (Bod)body.get(i);
 
+        if(DEBUG && i==0)
+        println(b.pos.x+" "+b.pos.x+" "+b.pos.z);
         b.pos.x += (a.pos.x-b.pos.x)/SMOOTHING;
         b.pos.y += (a.pos.y-b.pos.y)/SMOOTHING;
         b.pos.z += (a.pos.z-b.pos.z)/SMOOTHING;
@@ -224,7 +195,7 @@ int sketchHeight() {
 }
 
 String sketchRenderer() {
-  return P3D;
+  return OPENGL;
 }
 
 void exit() {
@@ -235,19 +206,21 @@ void exit() {
 void projection(){
 
 
-  Bod hlava = (Bod)(body.get(0));
-  float rx = atan2(-hlava.pos.y,-hlava.pos.x);
-  float ry = atan2(-hlava.pos.z,-hlava.pos.x);
-  //float rz = atan2(-hlava.y,-hlava.x);
+  Bod hlava = new Bod(new PVector(0,0,0));
+  
+  float len = body.size()+0.0;
+  for(Object o : body){
+    Bod b = (Bod)o;
+    hlava.pos.x += b.pos.x/len;
+    hlava.pos.y += b.pos.y/len;
+    hlava.pos.z += b.pos.z/len;
+  }
+
+
 
   pushMatrix();
-  translate(width/2,height/2);
-  rotateX(rx);
-  rotateY(ry);
-  translate(-width/2,-height/2);
-
-  pushMatrix();
-  translate(width/2,height/2);
+  camera(hlava.pos.x,hlava.pos.y,hlava.pos.z,center.x,center.y,center.z,0,0,1);
+  translate(center.x,center.y,center.z);
   for(int i = 0 ; i < pnts.length;i++){
 
     PVector origin = new PVector(
@@ -264,7 +237,6 @@ void projection(){
 
   }
 
-  popMatrix();
   popMatrix();
 
 }
